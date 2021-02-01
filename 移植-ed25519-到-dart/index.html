@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html><head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Touge&#39;s blog">
+    
+    <link rel="shortcut icon" href="https://tougee.github.io/favicon.ico">
+    
+    <link rel="stylesheet" href="/css/style.min.css">
+
+    <title>移植 Ed25519 到 Dart</title>
+</head>
+<body><header id="banner">
+    <h2><a href="https://tougee.github.io/">Touge&#39;s blog</a></h2>
+    <nav>
+        <ul>
+            
+        </ul>
+    </nav>
+</header>
+<main id="content">
+<article>
+    <header id="post-header">
+        <h1>移植 Ed25519 到 Dart</h1><time>February 1, 2021</time></header><p>最近在跟同事用 Dart 移植 <a href="https://github.com/signalapp/libsignal-protocol-java">Signal Protocol</a>，以方便后续可能会使用 Flutter 来构建我们的跨平台产品。同事提议说移植这个库的时候我还是很担心的，毕竟是个密码学相关的库，里面有大量的计算代码，之前也没有做过相关的内容，很担心出了问题无从下手，所以必须要调研好已经存在的各种 Dart 开源算法库，包括 AES, HMAC, Sha512, Curve25519, Ed25519 等等。</p>
+<p>同事一番调研后说没问题，该有的都有，他便着手开始了。我也紧随其后，作为一个 Dart 新手，整个过程还算顺利，主要 Dart 的语法不复杂，跟我熟悉的语言比较相近，一边看着官网的 language tour 一边写，配上 IntelliJ IDEA 的 Dart 插件提醒，慢慢的也就上手了。直到整个库几乎都快搬完了，有些 Dart 关键词的意义和用法还并不清楚，不过这并不影响完成任务，只是移植过来的代码很不 idiomatic，带着一股 Java 的味道。</p>
+<p>事情进展的还可以，大部分的测试都顺利通过了，只是 Signal 协议有个流程叫 <a href="https://signal.org/docs/specifications/xeddsa/">xeddsa</a> 是把 Curve25519 key 转成 Ed25519 key，再用 Ed25519 的 key 来签名和认证。 这个转换的过程会调用到一些 Edwards curve 内部实现的一些API，这是 <a href="https://blog.filippo.io/using-ed25519-keys-for-encryption/">Go 的实现</a> 基于 <a href="https://github.com/golang/crypto/blob/master/ed25519/internal/edwards25519/edwards25519.go">edwards25519</a>。由于我们使用的 Dart 关于 Ed25519 的实现只是实现了基础的 sign 和 verify，并没有这些底层的 API。这时我们面前有2个选择：一个是自己实现下 Ed25519 的方法，另一个是通过 Dart 的 <a href="https://flutter.dev/docs/development/platform-integration/c-interop">FFI</a> 来调用 C 或者 Go 的实现。大致扫了一眼 Go 的 Edwards25519 的实现后直接劝退，成片的运算代码，完全不知所以然，感觉自己实现起来不现实，测试出错都没法调试。C 的实现还挺多，不过同事最终还是选择了调用 Go 的官方实现。虽然 Dart 的 FFI 还是 Beta 阶段，不过测试跑起来都正常。</p>
+<p>这样第一版也算弄出来了，整个过程有惊无险。之后整理整理代码，丰富下 README，同事还在 Reddit 上的 Flutter 社区还<a href="https://www.reddit.com/r/FlutterDev/comments/i0l3as/we_open_source_a_signal_protocol_library_for_dart/">发了个贴</a>宣传了一波。不得不说 Flutter 社区的人还是挺活跃的，代码也有了一些 star。随之而来也有人开始问些问题，主要是关于 Dart FFI 在跨平台方面的一些限制，我们自己也知道 FFI 这种方式是不完善的。一边去我们用的第三方库提 issue，看他们能否实现一下我们需要的 API；另一边自己这边也开了个 <a href="https://github.com/MixinNetwork/libsignal_protocol_dart/issues/1">issue</a> 看看有没有专家来帮我们实现下这个部分。 事情在过了一小段时间后并没有任何进展，大家也知道这看起来就是块难啃的骨头。</p>
+<p>在一个吃过午饭的周六，我没有按照往常打开刀塔2跟小伙伴们开黑，而是打开了 signal 的 <a href="https://github.com/signalapp/curve25519-java/tree/master/common/src/main/java/org/whispersystems/curve25519/java">Java 实现</a>，决定花时间尝试着移植一下。相关的代码还是很多的，他这个明显也是翻译的某 C 的实现。下定决心后，开始把代码往 Dart 那边搬。整个过程基本就是复制、粘贴、改语法错误。时间过的也很快，折腾到能编译就已经花了好几个小时了，中途除了吃饭跟上厕所。终于能成功编译了，之后便找了一些测试用例，分别从两端开始输入，之后便是无尽的两端输出不一致，需要边看代码边 debug 对比。毕竟那么多计算代码，复制粘贴等改动造成一些不一样也是意料之中，再加上 Java 的代码已经是从其他语言翻译过来的。调试起来也是挺麻烦的，特别是 Java 这边，对于 byte array 在调试阶段的显示太不友好。这个过程差不多持续几个小时，也的确发现了一些问题，但始终不知道终点在何处。情绪慢慢低落了，时间也挺晚了，便休息了，第二天再继续尝试。第二天也是吃完午饭后差不多继续折腾了几个小时，还是通不过测试。整个人就疲惫了，虽然之前已经有了心理准备。虽然有不甘，但这周先这样了，去公园散散步。</p>
+<p>时间过了一周，周日的晚上洗完澡感觉整个人神清气爽，想到了上周未完成的任务，遗憾加上不甘，我决定换个思路，尝试移植 Go 的版本。分析对比了一翻，找到了两点可以试试的理由：一个是 Go 的实现看起来更简洁，不像 Java 的实现是翻译过来的，没有灵魂；另一个是发现 Go 在调试 byte array 的时候显示和 Dart 挺接近，方便对比。之后就是类似上周的步骤，复制、粘贴、改语法错误，在用 Dart 模拟了 <a href="https://github.com/golang/crypto/blob/master/ed25519/internal/edwards25519/edwards25519.go#L16">FieldElement</a> 之后，整个拷代码过程还挺顺利，改动也不大，一改移植 Java 时的各种烦躁。不过在移植这个<a href="https://github.com/golang/crypto/blob/master/ed25519/internal/edwards25519/const.go">文件</a>的时候还是很崩溃的，内容很多，修改很多。移植到这的时候差不多到了深夜，又累又困。拷完代码运行测试也没有那么顺利，当然不可能一次成功，不过感觉比之前一版清晰了很多。之后的几天抽空慢慢调试对比，仅仅改了几处问题之后，测试通过了。我当时很兴奋，赶紧整理代码提交了 PR，标题也终于可以取作 <a href="https://github.com/MixinNetwork/libsignal_protocol_dart/pull/5">Pure dart implementation of ed25519</a>。后来我把这部分代码单独提了出来，做成了一个单独的<a href="https://github.com/tougee/ed25519">库</a>，完善了下代码，增加了 Go 库里的所有相关测试。</p>
+<p>回想这次的经历，其实并不能让我从代码水平上有啥提升，但是却在解决问题的心态上发生了一些变化。在没尝试这个移植之前，光看代码就觉得眼花缭乱，会有一种从心底的胆怯。但是现在我的心态已然不一样，至少这个程度的任务我是有信心去完成，虽然不确定这中间会遇到哪些问题，但最终会解决。</p>
+</article>
+
+        </main><footer id="footer">
+    Copyright © 2021 Touge
+</footer>
+</body>
+</html>
