@@ -6,12 +6,7 @@
     <description>Recent content in Posts on Touge&#39;s blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Mon, 01 Feb 2021 21:39:02 +0800</lastBuildDate>
-    
-	<atom:link href="https://tougee.github.io/posts/index.xml" rel="self" type="application/rss+xml" />
-    
-    
-    
+    <lastBuildDate>Mon, 01 Feb 2021 21:39:02 +0800</lastBuildDate><atom:link href="https://tougee.github.io/posts/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>移植 Ed25519 到 Dart</title>
       <link>https://tougee.github.io/%E7%A7%BB%E6%A4%8D-ed25519-%E5%88%B0-dart/</link>
@@ -22,8 +17,6 @@
 同事一番调研后说没问题，该有的都有，他便着手开始了。我也紧随其后，作为一个 Dart 新手，整个过程还算顺利，主要 Dart 的语法不复杂，跟我熟悉的语言比较相近，一边看着官网的 language tour 一边写，配上 IntelliJ IDEA 的 Dart 插件提醒，慢慢的也就上手了。直到整个库几乎都快搬完了，有些 Dart 关键词的意义和用法还并不清楚，不过这并不影响完成任务，只是移植过来的代码很不 idiomatic，带着一股 Java 的味道。
 事情进展的还可以，大部分的测试都顺利通过了，只是 Signal 协议有个流程叫 xeddsa 是把 Curve25519 key 转成 Ed25519 key，再用 Ed25519 的 key 来签名和认证。 这个转换的过程会调用到一些 Edwards curve 内部实现的一些API，这是 Go 的实现 基于 edwards25519。由于我们使用的 Dart 关于 Ed25519 的实现只是实现了基础的 sign 和 verify，并没有这些底层的 API。这时我们面前有2个选择：一个是自己实现下 Ed25519 的方法，另一个是通过 Dart 的 FFI 来调用 C 或者 Go 的实现。大致扫了一眼 Go 的 Edwards25519 的实现后直接劝退，成片的运算代码，完全不知所以然，感觉自己实现起来不现实，测试出错都没法调试。C 的实现还挺多，不过同事最终还是选择了调用 Go 的官方实现。虽然 Dart 的 FFI 还是 Beta 阶段，不过测试跑起来都正常。</description>
     </item>
-    
-    
     
     <item>
       <title>最近看了浴血黑帮</title>
@@ -38,7 +31,6 @@
 配乐好听。
 具体好在哪说不出所以然，里面除了有一些 Radiohead 的音乐比较熟悉，其他的只是单纯觉得好听，不看剧的时候会找个剧里的音乐合集来作为歌单听。</description>
     </item>
-    
     
   </channel>
 </rss>

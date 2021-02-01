@@ -5,39 +5,6 @@
     <link>https://tougee.github.io/categories/</link>
     <description>Recent content in Categories on Touge&#39;s blog</description>
     <generator>Hugo -- gohugo.io</generator>
-    <language>en-us</language>
-    
-	<atom:link href="https://tougee.github.io/categories/index.xml" rel="self" type="application/rss+xml" />
-    
-    
-    
-    <item>
-      <title>移植 Ed25519 到 Dart</title>
-      <link>https://tougee.github.io/%E7%A7%BB%E6%A4%8D-ed25519-%E5%88%B0-dart/</link>
-      <pubDate>Mon, 01 Feb 2021 21:39:02 +0800</pubDate>
-      
-      <guid>https://tougee.github.io/%E7%A7%BB%E6%A4%8D-ed25519-%E5%88%B0-dart/</guid>
-      <description>最近在跟同事用 Dart 移植 Signal Protocol，以方便后续可能会使用 Flutter 来构建我们的跨平台产品。同事提议说移植这个库的时候我还是很担心的，毕竟是个密码学相关的库，里面有大量的计算代码，之前也没有做过相关的内容，很担心出了问题无从下手，所以必须要调研好已经存在的各种 Dart 开源算法库，包括 AES, HMAC, Sha512, Curve25519, Ed25519 等等。
-同事一番调研后说没问题，该有的都有，他便着手开始了。我也紧随其后，作为一个 Dart 新手，整个过程还算顺利，主要 Dart 的语法不复杂，跟我熟悉的语言比较相近，一边看着官网的 language tour 一边写，配上 IntelliJ IDEA 的 Dart 插件提醒，慢慢的也就上手了。直到整个库几乎都快搬完了，有些 Dart 关键词的意义和用法还并不清楚，不过这并不影响完成任务，只是移植过来的代码很不 idiomatic，带着一股 Java 的味道。
-事情进展的还可以，大部分的测试都顺利通过了，只是 Signal 协议有个流程叫 xeddsa 是把 Curve25519 key 转成 Ed25519 key，再用 Ed25519 的 key 来签名和认证。 这个转换的过程会调用到一些 Edwards curve 内部实现的一些API，这是 Go 的实现 基于 edwards25519。由于我们使用的 Dart 关于 Ed25519 的实现只是实现了基础的 sign 和 verify，并没有这些底层的 API。这时我们面前有2个选择：一个是自己实现下 Ed25519 的方法，另一个是通过 Dart 的 FFI 来调用 C 或者 Go 的实现。大致扫了一眼 Go 的 Edwards25519 的实现后直接劝退，成片的运算代码，完全不知所以然，感觉自己实现起来不现实，测试出错都没法调试。C 的实现还挺多，不过同事最终还是选择了调用 Go 的官方实现。虽然 Dart 的 FFI 还是 Beta 阶段，不过测试跑起来都正常。</description>
-    </item>
-    
-    
-    
-    <item>
-      <title>最近看了浴血黑帮</title>
-      <link>https://tougee.github.io/%E6%9C%80%E8%BF%91%E7%9C%8B%E4%BA%86%E6%B5%B4%E8%A1%80%E9%BB%91%E5%B8%AE/</link>
-      <pubDate>Mon, 01 Feb 2021 21:23:50 +0800</pubDate>
-      
-      <guid>https://tougee.github.io/%E6%9C%80%E8%BF%91%E7%9C%8B%E4%BA%86%E6%B5%B4%E8%A1%80%E9%BB%91%E5%B8%AE/</guid>
-      <description>最近在表弟的推荐下看完了一部英剧《浴血黑帮》，说实话这部剧的剧情我个人觉得一般，很多逻辑牵强，但我还是看完了，下面我来说说这部剧在我心中的几个优点。
-画面好看。
-这部剧的剧情发生在一战之后的英国伯明翰，这时候的英国工业很繁荣，剧里到处是冒着烟的烟囱，地面是漆黑一片。整个环境色调阴暗，远处瘦高的烟囱冒着黑烟，近处蒸汽弥漫，路边工作的工人敲击着器械，时不时会有锻造的团火穿过蒸汽点亮环境，让画面很有质感。
-当然画面好看不仅仅指环境，还包括人们的着装，特别是男装。剧里不管是工作的工人，还是路上的行人，无论是大人还是小孩，都穿的很精致。各式各样的西装，从材质到款式以及面料，特别是面料，感觉粗线的西装很好看。之前对西装一直挺排斥的，就是那种细线织出来，表面很光滑的那种。不过剧里的人穿西装很帅，可能是因为他们身材都很好。剧里的人都挺喜欢戴帽子，不知道是不是英国经常下雨的原因。当然主角们戴帽子的原因是打架可以用藏在帽子里刀片。
-配乐好听。
-具体好在哪说不出所以然，里面除了有一些 Radiohead 的音乐比较熟悉，其他的只是单纯觉得好听，不看剧的时候会找个剧里的音乐合集来作为歌单听。</description>
-    </item>
-    
-    
+    <language>en-us</language><atom:link href="https://tougee.github.io/categories/index.xml" rel="self" type="application/rss+xml" />
   </channel>
 </rss>
